@@ -14,21 +14,6 @@ import (
 func main() {
 	m := initialModel()
 
-	rows := []*stickers.FlexBoxRow{
-		m.flexBox.NewRow().AddCells([]*stickers.FlexBoxCell{
-			stickers.NewFlexBoxCell(1, 1).SetContent(m.currentTime),
-			stickers.NewFlexBoxCell(1, 1).SetContent(lipgloss.NewStyle().Align(lipgloss.Right).Render("Battery: 100%")),
-		}),
-		m.flexBox.NewRow().AddCells([]*stickers.FlexBoxCell{
-			stickers.NewFlexBoxCell(1, 1).SetContent(m.currentDate),
-		}),
-		m.flexBox.NewRow().AddCells([]*stickers.FlexBoxCell{
-			stickers.NewFlexBoxCell(1, 11),
-		}),
-	}
-
-	m.flexBox.AddRows(rows)
-
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
@@ -61,6 +46,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.currentTime = t.Format("3:04 PM")
 	m.currentDate = strings.ToUpper(t.Format("Mon, Jan _2"))
 
+	rows := []*stickers.FlexBoxRow{
+		m.flexBox.NewRow().AddCells([]*stickers.FlexBoxCell{
+			stickers.NewFlexBoxCell(1, 1).SetContent(m.currentTime).SetID("currentTime"),
+			stickers.NewFlexBoxCell(1, 1).SetContent("Battery: 100%").SetStyle(lipgloss.NewStyle().Align(lipgloss.Right)),
+		}),
+		m.flexBox.NewRow().AddCells([]*stickers.FlexBoxCell{
+			stickers.NewFlexBoxCell(1, 1).SetContent(m.currentDate),
+		}),
+		m.flexBox.NewRow().AddCells([]*stickers.FlexBoxCell{
+			stickers.NewFlexBoxCell(1, 11),
+		}),
+	}
+
+	m.flexBox.SetRows(rows)
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.flexBox.SetWidth(msg.Width)
@@ -75,14 +75,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	// topLeft := lipgloss.NewStyle().Align(lipgloss.Left).Width(40 / 2).Render(m.currentTime + "\n" + m.currentDate)
-	// topRight := lipgloss.NewStyle().Align(lipgloss.Right).Width(40 / 2).Render("Battery: 100%")
-	// menuBar := lipgloss.JoinHorizontal(lipgloss.Top, topLeft, topRight)
-
-	// // Menu with 4 items
-	// menu := lipgloss.NewStyle().Align(lipgloss.Center).Width(40).Render(
-	// 	" Home   Documents   Downloads   Pictures   Movies   Music   Applications   Terminal   Log Out",
-	// )
-
 	return m.flexBox.Render()
 }
